@@ -1,13 +1,20 @@
 import os
+
 the_board = [i for i in range(1, 10)]
 menu_answers = {"1": "statistic", "2": "playgame"}
+
+def cls():
+    if os.name == "nt":
+        os.system("cls")
+    else:
+        os.system("clear")
 
 def get_answer():
     answer = input("Your choise: ")
     return menu_answers.get(answer)
 
 def show_menu():
-    os.system("cls")
+    cls()
     print("___MENU___")
     print("1. Show statistic")
     print("2. Play the game\n")
@@ -24,20 +31,24 @@ def show_the_board():
         print("|", the_board[0+i*3], "|", the_board[1+i*3], "|", the_board[2+i*3], "|")
         print("-" * 13)
 
+def record_statistics():
+    cls()
+    with open("statistics.txt", "r") as file:
+        xwin = 0
+        owin = 0
+        draw = 0
+        file.seek(0)
+        for line in file:
+            if "Player X win!" in line:
+                xwin +=1
+            elif "Player O win!" in line:
+                owin +=1
+            elif "Draw" in line:
+                draw +=1
+    return print(f"X = {xwin} : O = {owin} : draw = {draw}")
 
 def show_statistic():
-    player_x = "X"
-    player_y = "O"
-    Draw = "Draw"
-    if  check_win() == 'X':
-        player_x = int(player_x + 1)
-        print(f"Player_x win {player_x}")
-    elif check_win() == 'O':
-        player_y = int(player_y + 1)
-        print(f"Player_y win {player_y}")
-    elif check_win() == 'draw':
-        Draw = Draw + 1
-    return player_x, player_y, Draw
+    record_statistics()
 
 def take_input(player_token):
     valid = False
@@ -80,13 +91,15 @@ def play_the_game():
         if counter > 4:
             tmp = check_win()
             if tmp:
-                print(tmp, "You win!")
-                win = True
-                break
+                with open("statistics.txt", "a+") as file:
+                    file.write(f"Player {tmp} win!\n")
+                return print(f"{tmp}, You win!")
         if counter == 9:
-            print("Draw")
-            break
+            with open("statistics.txt", "a+") as file:
+                file.write("Draw\n")
+            return print("Draw")
     show_the_board()
+    record_statistics()
 
 def main():
     answer = show_menu()
